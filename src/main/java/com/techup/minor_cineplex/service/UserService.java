@@ -69,5 +69,10 @@ public class UserService {
     supabaseClient.signIn(email, request.getOldPassword());
 
     supabaseClient.updateUser(userId, Map.of("password", request.getNewPassword()));
-}
+    }
+
+    public void forgotPassword(String email) {
+        userRepository.findByEmail(email).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        supabaseClient.sendResetPasswordEmail(email);
+    }
 }

@@ -102,6 +102,20 @@ public class SupabaseClient {
         }
     }
 
+    public void sendResetPasswordEmail(String email) {
+    String url = supabaseUrl + "/auth/v1/recover";
+
+    HttpHeaders headers = new HttpHeaders();
+    headers.set("apikey", supabaseAnonKey);
+    headers.setContentType(MediaType.APPLICATION_JSON);
+
+    Map<String, String> body = Map.of("email", email);
+
+    HttpEntity<Map<String, String>> entity = new HttpEntity<>(body, headers);
+
+    restTemplate.postForEntity(url, entity, String.class);
+}
+
     // admin api call
     private HttpHeaders headers(String key) {
         HttpHeaders headers = new HttpHeaders();

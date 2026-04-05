@@ -51,7 +51,7 @@ public class SecurityConfig {
     @Order(1)
     public SecurityFilterChain publicFilterChain(HttpSecurity http) throws Exception {
         http
-            .securityMatcher("/auth/register", "/auth/login", "/auth/logout",
+            .securityMatcher("/auth/register", "/auth/login", "/auth/logout", "/user/forgot-password",
                              "/swagger-ui/**", "/v3/api-docs/**")
             .csrf(csrf -> csrf.disable())
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
