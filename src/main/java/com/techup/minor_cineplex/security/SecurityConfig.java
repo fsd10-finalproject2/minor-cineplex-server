@@ -53,7 +53,7 @@ public class SecurityConfig {
         http
             .securityMatcher("/auth/register", "/auth/login", "/auth/logout", "/user/forgot-password",
                              "/swagger-ui/**", "/v3/api-docs/**",
-                             "/api/movies/**", "/api/seats/theater/**", "/api/seats/selections/**")
+                             "/api/movies/**", "/api/seats/theater/**", "/api/seats/selections/**", "/promotions/list")
             .csrf(csrf -> csrf.disable())
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .sessionManagement(session -> session
