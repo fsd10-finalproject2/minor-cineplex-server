@@ -4,8 +4,7 @@ import java.util.UUID;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import com.minorcineplex.entity.User;
-import com.minorcineplex.exception.AppException;
-import com.minorcineplex.exception.ErrorCode;
+
 import com.minorcineplex.repository.UserRepository;
 import com.minorcineplex.utils.JwtUtils;
 import lombok.RequiredArgsConstructor;
@@ -20,8 +19,15 @@ public class UserService {
         UUID userId = JwtUtils.extractUserId(jwt);
         String tokenEmail = JwtUtils.extractEmail(jwt);
 
-        User user = userRepository.findById(userId)
-            .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        User user = userRepository.findById(userId).orElseGet(() -> {
+            User newUser = User.builder()
+                .id(userId)
+                .name(tokenEmail.split("@")[0]) // Default name
+                .email(tokenEmail)
+                .role(com.minorcineplex.enums.Role.USER)
+                .build();
+            return userRepository.save(newUser);
+        });
 
         if (!tokenEmail.equals(user.getEmail())) {
             user.setEmail(tokenEmail);
