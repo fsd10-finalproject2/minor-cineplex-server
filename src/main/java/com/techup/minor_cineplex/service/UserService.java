@@ -34,6 +34,10 @@ public class UserService {
         UUID userId = JwtUtils.extractUserId(jwt);
         String tokenEmail = JwtUtils.extractEmail(jwt);
 
+        log.info("Looking for userId: {}", userId);
+        log.info("Token email: {}", tokenEmail);
+        log.info("All users: {}", userRepository.count());
+
         Users user = userRepository.findById(userId)
             .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 

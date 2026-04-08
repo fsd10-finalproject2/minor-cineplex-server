@@ -17,7 +17,9 @@ import com.techup.minor_cineplex.mapper.UserMapper;
 import com.techup.minor_cineplex.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -60,29 +62,36 @@ public class AuthService {
         }
 
         userRepository.save(userMapper.toEntity(request.getName(), request.getEmail(), userId));
+        log.info("User saved to DB: {}", userId);
     }
 
     // Login
-    public AuthResponse login(LoginRequest request) {
-        Map<String, Object> session = supabaseClient.signIn(
-            request.getEmail(), request.getPassword()
-        );
+   public AuthResponse login(LoginRequest request) {
+    Map<String, Object> session = supabaseClient.signIn(
+        request.getEmail(), request.getPassword()
+    );
 
-        String accessToken = (String) session.get("access_token");
+    String accessToken = (String) session.get("access_token");
 
-        @SuppressWarnings("unchecked")
-        Map<String, Object> userMap = (Map<String, Object>) session.get("user");
+    @SuppressWarnings("unchecked")
+    Map<String, Object> userMap = (Map<String, Object>) session.get("user");
 
-        if (userMap == null) {
-            throw new AppException(ErrorCode.INVALID_SUPABASE_RESPONSE);
-        }
-
-        String userId = (String) userMap.get("id");
-
-        return AuthResponse.builder()
-            .accessToken(accessToken)
-            .userId(userId)
-            .email(request.getEmail())
-            .build();
+    if (userMap == null) {
+        throw new AppException(ErrorCode.INVALID_SUPABASE_RESPONSE);
     }
+
+    String supabaseId = (String) userMap.get("id");
+    UUID userId = UUID.fromString(supabaseId);
+
+    // Save user to DB if not exists
+    if (!userRepository.findById(userId).isPresent()) {
+    userRepository.save(userMapper.toEntity("", request.getEmail(), userId));
+}
+
+    return AuthResponse.builder()
+        .accessToken(accessToken)
+        .userId(supabaseId)
+        .email(request.getEmail())
+        .build();
+}
 }
