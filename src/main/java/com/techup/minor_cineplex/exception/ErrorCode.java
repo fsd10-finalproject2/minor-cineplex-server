@@ -1,7 +1,6 @@
 package com.techup.minor_cineplex.exception;
 
 import org.springframework.http.HttpStatus;
-
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -24,10 +23,15 @@ public enum ErrorCode {
     INVALID_SUPABASE_ID(HttpStatus.BAD_REQUEST, "Invalid Supabase ID"),
     UPDATE_FAILED(HttpStatus.BAD_REQUEST, "Failed to update user"),
 
+    // Seat Booking
+    SEAT_ALREADY_BOOKED(HttpStatus.CONFLICT, "Seat is already booked"),
+    SEAT_ALREADY_SELECTED(HttpStatus.CONFLICT, "Seat is currently selected by another user"),
+    SEAT_NOT_SELECTED_BY_USER(HttpStatus.BAD_REQUEST, "Seat must be selected by you before booking"),
+
     // General
     VALIDATION_ERROR(HttpStatus.BAD_REQUEST, "Validation error"),
     INTERNAL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error");
 
-    private final HttpStatus status;
+    private final HttpStatus statusCode;
     private final String message;
 }

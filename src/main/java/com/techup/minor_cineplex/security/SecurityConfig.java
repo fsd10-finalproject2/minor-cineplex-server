@@ -52,7 +52,8 @@ public class SecurityConfig {
     public SecurityFilterChain publicFilterChain(HttpSecurity http) throws Exception {
         http
             .securityMatcher("/auth/register", "/auth/login", "/auth/logout", "/user/forgot-password",
-                             "/swagger-ui/**", "/v3/api-docs/**")
+                             "/swagger-ui/**", "/v3/api-docs/**",
+                             "/api/movies/**", "/api/seats/theater/**", "/api/seats/selections/**")
             .csrf(csrf -> csrf.disable())
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .sessionManagement(session -> session

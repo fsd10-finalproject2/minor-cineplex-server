@@ -1,50 +1,68 @@
 package com.techup.minor_cineplex.exception;
 
-import java.time.LocalDateTime;
-
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import java.time.LocalDateTime;
+import java.util.stream.Collectors;
 
-import lombok.extern.slf4j.Slf4j;
-
-@Slf4j
-@ControllerAdvice
+@RestControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(AppException.class)
-    public ResponseEntity<ErrorResponse> handleAppException(AppException ex) {
-        return ResponseEntity
-            .status(ex.getErrorCode().getStatus())
-            .body(buildError(ex.getErrorCode().getStatus().value(), ex.getMessage()));
+    public ResponseEntity<ApiError> handleAppException(AppException ex) {
+        ErrorCode errorCode = ex.getErrorCode();
+        ApiError error = ApiError.builder()
+                .message(errorCode.getMessage())
+                .status(errorCode.getStatusCode().value())
+                .timestamp(LocalDateTime.now())
+                .build();
+        return new ResponseEntity<>(error, errorCode.getStatusCode());
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ApiError> handleResourceNotFound(ResourceNotFoundException ex) {
+        ApiError error = ApiError.builder()
+                .message(ex.getMessage())
+                .status(HttpStatus.NOT_FOUND.value())
+                .timestamp(LocalDateTime.now())
+                .build();
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<ApiError> handleUnauthorized(UnauthorizedException ex) {
+        ApiError error = ApiError.builder()
+                .message(ex.getMessage())
+                .status(HttpStatus.UNAUTHORIZED.value())
+                .timestamp(LocalDateTime.now())
+                .build();
+        return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleValidation(MethodArgumentNotValidException ex) {
-        String message = ex.getBindingResult()
-            .getFieldErrors()
-            .stream()
-            .map(e -> e.getField() + ": " + e.getDefaultMessage())
-            .findFirst()
-            .orElse(ErrorCode.VALIDATION_ERROR.getMessage());
+    public ResponseEntity<ApiError> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        String message = ex.getBindingResult().getFieldErrors().stream()
+                .map(error -> error.getField() + ": " + error.getDefaultMessage())
+                .collect(Collectors.joining(", "));
 
-        return ResponseEntity.badRequest()
-            .body(buildError(400, message));
+        ApiError error = ApiError.builder()
+                .message(message)
+                .status(HttpStatus.BAD_REQUEST.value())
+                .timestamp(LocalDateTime.now())
+                .build();
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleGeneral(Exception ex) {
-        log.error("Unexpected error", ex);
-        return ResponseEntity.internalServerError()
-            .body(buildError(500, ErrorCode.INTERNAL_ERROR.getMessage()));
-    }
-
-    private ErrorResponse buildError(int status, String message) {
-        return ErrorResponse.builder()
-            .status(status)
-            .message(message)
-            .timestamp(LocalDateTime.now())
-            .build();
+    public ResponseEntity<ApiError> handleGenericException(Exception ex) {
+        ApiError error = ApiError.builder()
+                .message("An unexpected error occurred: " + ex.getMessage())
+                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .timestamp(LocalDateTime.now())
+                .build();
+        return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
