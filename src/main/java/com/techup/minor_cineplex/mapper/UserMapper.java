@@ -1,3 +1,11 @@
+/**
+ * Mapper class responsible for converting between Users entity
+ * and UserProfileResponse DTO.
+ *
+ * This helps separate data transformation logic from business logic,
+ * making the code more maintainable and easier to test.
+ */
+
 package com.techup.minor_cineplex.mapper;
 
 import org.springframework.stereotype.Component;
