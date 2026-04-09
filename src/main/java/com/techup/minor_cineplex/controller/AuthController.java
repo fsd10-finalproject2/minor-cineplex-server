@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,10 +14,10 @@ import com.techup.minor_cineplex.dto.request.auth.LoginRequest;
 import com.techup.minor_cineplex.dto.request.auth.RegisterRequest;
 import com.techup.minor_cineplex.dto.response.auth.AuthResponse;
 import com.techup.minor_cineplex.service.AuthService;
+import com.techup.minor_cineplex.validation.ValidationOrder;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -28,7 +29,7 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<Map<String, String>> register(
-        @RequestBody @Valid RegisterRequest request
+        @RequestBody @Validated(ValidationOrder.class) RegisterRequest request
     ) {
         authService.register(request);
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -37,7 +38,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(
-        @RequestBody @Valid LoginRequest request,
+        @RequestBody @Validated(ValidationOrder.class) LoginRequest request,
         HttpServletResponse response
     ) {
         AuthResponse auth = authService.login(request);
@@ -51,7 +52,7 @@ public class AuthController {
         return ResponseEntity.ok(Map.of("message", "Logged out"));
     }
 
-    // Cookie Helpers 
+    // Cookie Helpers
     private void setTokenCookie(HttpServletResponse response, String token) {
         Cookie cookie = new Cookie("access_token", token);
         cookie.setHttpOnly(true);

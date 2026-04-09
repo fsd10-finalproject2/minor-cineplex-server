@@ -1,26 +1,41 @@
 package com.techup.minor_cineplex.exception;
 
+import java.time.LocalDateTime;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import java.time.LocalDateTime;
-import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(AppException.class)
-    public ResponseEntity<ApiError> handleAppException(AppException ex) {
-        ErrorCode errorCode = ex.getErrorCode();
-        ApiError error = ApiError.builder()
-                .message(errorCode.getMessage())
-                .status(errorCode.getStatusCode().value())
-                .timestamp(LocalDateTime.now())
-                .build();
-        return new ResponseEntity<>(error, errorCode.getStatusCode());
+    public ResponseEntity<ErrorResponse> handleAppException(AppException ex) {
+    ErrorCode errorCode = ex.getErrorCode();
+
+    Map<String, String[]> errors = null;
+
+
+    if (errorCode.getField() != null) {
+        errors = Map.of(
+            errorCode.getField(),
+            new String[]{ errorCode.getMessage() }
+        );
     }
+
+    ErrorResponse response = ErrorResponse.builder()
+            .status(errorCode.getStatusCode().value())
+            .message(errorCode.getMessage())
+            .errors(errors)
+            .timestamp(LocalDateTime.now())
+            .build();
+
+    return new ResponseEntity<>(response, errorCode.getStatusCode());
+}
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ApiError> handleResourceNotFound(ResourceNotFoundException ex) {
