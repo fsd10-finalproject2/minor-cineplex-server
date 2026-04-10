@@ -29,6 +29,12 @@ public enum ErrorCode {
     SEAT_ALREADY_SELECTED(HttpStatus.CONFLICT, "seat", "Seat is currently selected by another user"),
     SEAT_NOT_SELECTED_BY_USER(HttpStatus.BAD_REQUEST, "seat", "Seat must be selected by you before booking"),
 
+    // Coupons
+    COUPON_NOT_FOUND(HttpStatus.NOT_FOUND, "coupon", "Coupon not found"),
+    COUPON_NOT_ACTIVE(HttpStatus.BAD_REQUEST, "coupon", "Coupon is not active"),
+    COUPON_NOT_IN_WALLET(HttpStatus.NOT_FOUND, "coupon", "Coupon not found in user wallet"),
+    COUPON_ALREADY_SAVED(HttpStatus.CONFLICT, "coupon", "Coupon already saved"),
+
     // General
     VALIDATION_ERROR(HttpStatus.BAD_REQUEST, null, "Validation error"),
     INTERNAL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, null, "Internal server error");
