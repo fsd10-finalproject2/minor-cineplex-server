@@ -24,8 +24,13 @@ public class CouponResponse {
     private final Boolean isActive;
     private final LocalDateTime redemptionStartAt;
     private final LocalDateTime redemptionExpiresAt;
+    private final Boolean hasCoupon;
 
     public static CouponResponse from(Coupons entity) {
+        return from(entity, false);
+    }
+
+    public static CouponResponse from(Coupons entity, boolean hasCoupon) {
         if (entity == null) {
             return null;
         }
@@ -44,6 +49,7 @@ public class CouponResponse {
             .isActive(entity.getIsActive())
             .redemptionStartAt(entity.getRedemptionStartAt())
             .redemptionExpiresAt(entity.getRedemptionExpiresAt())
+            .hasCoupon(hasCoupon)
             .build();
     }
 }

@@ -49,11 +49,11 @@ public class SecurityConfig {
 
     @Bean
     @Order(1)
-    public SecurityFilterChain publicFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain publicFilterChain(HttpSecurity http, BearerTokenResolver bearerTokenResolver) throws Exception {
         http
             .securityMatcher("/auth/register", "/auth/login", "/auth/logout", "/user/forgot-password",
                              "/swagger-ui/**", "/v3/api-docs/**",
-                             "/api/movies/**", "/api/seats/theater/**", "/api/seats/selections/**", "/promotions/list")
+                             "/api/movies/**", "/api/seats/theater/**", "/api/seats/selections/**", "/promotions/**")
             .csrf(csrf -> csrf.disable())
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .sessionManagement(session -> session
@@ -61,6 +61,10 @@ public class SecurityConfig {
             )
             .authorizeHttpRequests(auth -> auth
                 .anyRequest().permitAll()
+            )
+            .oauth2ResourceServer(oauth2 -> oauth2
+                .bearerTokenResolver(bearerTokenResolver)
+                .jwt(jwt -> jwt.decoder(jwtDecoder()))
             );
 
         return http.build();
