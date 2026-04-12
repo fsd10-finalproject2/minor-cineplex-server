@@ -31,39 +31,45 @@ public class AuthService {
 
     //  Register 
     public void register(RegisterRequest request) {
-        Map<String, Object> response = supabaseClient.signUp(
-            request.getEmail(), request.getPassword()
-        );
-
-        Object userObj = response.get("user");
-        if (!(userObj instanceof Map)) {
-            throw new ResponseStatusException(
-                HttpStatus.INTERNAL_SERVER_ERROR, "Invalid response from Supabase"
-            );
-        }
-
-        @SuppressWarnings("unchecked")
-        Map<String, Object> userMap = (Map<String, Object>) userObj;
-        String supabaseId = (String) userMap.get("id");
-
-        if (supabaseId == null) {
-            throw new AppException(ErrorCode.SUPABASE_ID_NOT_FOUND);
-        }
-
-        UUID userId;
-        try {
-            userId = UUID.fromString(supabaseId);
-        } catch (Exception e) {
-            throw new AppException(ErrorCode.INVALID_SUPABASE_ID);
-        }
-
-        if (userRepository.findById(userId).isPresent()) {
-            throw new AppException(ErrorCode.USER_ALREADY_EXISTS);
-        }
-
-        userRepository.save(userMapper.toEntity(request.getName(), request.getEmail(), userId));
-        log.info("User saved to DB: {}", userId);
+    // Check if email already exists in your users table first
+    if (userRepository.existsByEmail(request.getEmail())) {
+        throw new AppException(ErrorCode.USER_ALREADY_EXISTS);
     }
+
+    Map<String, Object> response = supabaseClient.signUp(
+        request.getEmail(), request.getPassword()
+    );
+
+    Object userObj = response.get("user");
+    if (!(userObj instanceof Map)) {
+        throw new ResponseStatusException(
+            HttpStatus.INTERNAL_SERVER_ERROR, "Invalid response from Supabase"
+        );
+    }
+
+    @SuppressWarnings("unchecked")
+    Map<String, Object> userMap = (Map<String, Object>) userObj;
+    String supabaseId = (String) userMap.get("id");
+
+    if (supabaseId == null) {
+        throw new AppException(ErrorCode.SUPABASE_ID_NOT_FOUND);
+    }
+
+    UUID userId;
+    try {
+        userId = UUID.fromString(supabaseId);
+    } catch (Exception e) {
+        throw new AppException(ErrorCode.INVALID_SUPABASE_ID);
+    }
+
+    // Catch duplicate UUID too (re-registration after Supabase already has the user)
+    if (userRepository.findById(userId).isPresent()) {
+        throw new AppException(ErrorCode.USER_ALREADY_EXISTS);
+    }
+
+    userRepository.save(userMapper.toEntity(request.getName(), request.getEmail(), userId));
+    log.info("User saved to DB: {}", userId);
+}
 
     // Login
    public AuthResponse login(LoginRequest request) {

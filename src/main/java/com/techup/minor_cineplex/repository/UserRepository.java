@@ -9,4 +9,7 @@ import com.techup.minor_cineplex.entity.Users;
 
 public interface UserRepository extends JpaRepository<Users, UUID> {
     Optional<Users> findByEmail(String email);
+    boolean existsByEmail(String email);
 }
+
+
