@@ -31,6 +31,10 @@ public class Movie {
 
     private String rating; // e.g., G, PG, PG-13, R
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     private List<String> genres;
+
+    private String language;
+
+    private java.time.LocalDate releaseDate;
 }

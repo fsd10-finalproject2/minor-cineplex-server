@@ -1,5 +1,6 @@
 package com.techup.minor_cineplex.controller;
 
+import com.techup.minor_cineplex.dto.request.movie.MovieSearchCriteria;
 import com.techup.minor_cineplex.entity.Movie;
 import com.techup.minor_cineplex.service.MovieService;
 import lombok.RequiredArgsConstructor;
@@ -27,5 +28,10 @@ public class MovieController {
     @GetMapping("/search")
     public ResponseEntity<List<Movie>> searchMovies(@RequestParam String query) {
         return ResponseEntity.ok(movieService.searchMovies(query));
+    }
+
+    @GetMapping("/filter")
+    public ResponseEntity<List<Movie>> filterMovies(MovieSearchCriteria criteria) {
+        return ResponseEntity.ok(movieService.searchMovies(criteria));
     }
 }
