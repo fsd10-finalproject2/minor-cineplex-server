@@ -38,6 +38,8 @@ public class DataSeeder implements CommandLineRunner {
                 .posterUrl("https://image.tmdb.org/t/p/w500/qJ2tW6WMUDux911r6m7haRef0WH.jpg")
                 .rating("PG-13")
                 .genres(List.of("Action", "Crime", "Drama"))
+                .language("English")
+                .releaseDate(java.time.LocalDate.of(2008, 7, 18))
                 .build();
         movieRepository.save(movie);
 
