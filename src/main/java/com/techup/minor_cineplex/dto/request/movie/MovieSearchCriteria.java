@@ -19,4 +19,7 @@ public class MovieSearchCriteria {
 
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate releaseDate;
+
+    private Boolean wheelchairAccess;
+    private Boolean hearingAssistance;
 }

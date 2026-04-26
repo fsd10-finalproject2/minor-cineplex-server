@@ -27,4 +27,8 @@ public class Cinema {
     private Double latitude;
 
     private Double longitude;
+
+    private Boolean wheelchairAccess;
+
+    private Boolean hearingAssistance;
 }

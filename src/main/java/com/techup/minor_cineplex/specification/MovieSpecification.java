@@ -33,11 +33,26 @@ public class MovieSpecification {
                 predicates.add(cb.equal(root.get("releaseDate"), criteria.getReleaseDate()));
             }
 
-            if (StringUtils.hasText(criteria.getCity())) {
+            if (StringUtils.hasText(criteria.getCity()) || (criteria.getWheelchairAccess() != null && criteria.getWheelchairAccess()) || (criteria.getHearingAssistance() != null && criteria.getHearingAssistance())) {
                 Subquery<Long> subquery = query.subquery(Long.class);
                 Root<Showtime> showtimeRoot = subquery.from(Showtime.class);
-                subquery.select(showtimeRoot.get("movie").get("id"))
-                        .where(cb.equal(cb.lower(showtimeRoot.get("cinema").get("city")), criteria.getCity().toLowerCase()));
+                List<jakarta.persistence.criteria.Predicate> subPredicates = new ArrayList<>();
+                
+                subquery.select(showtimeRoot.get("movie").get("id"));
+                
+                if (StringUtils.hasText(criteria.getCity())) {
+                    subPredicates.add(cb.equal(cb.lower(showtimeRoot.get("cinema").get("city")), criteria.getCity().toLowerCase()));
+                }
+                
+                if (criteria.getWheelchairAccess() != null && criteria.getWheelchairAccess()) {
+                    subPredicates.add(cb.equal(showtimeRoot.get("cinema").get("wheelchairAccess"), true));
+                }
+                
+                if (criteria.getHearingAssistance() != null && criteria.getHearingAssistance()) {
+                    subPredicates.add(cb.equal(showtimeRoot.get("cinema").get("hearingAssistance"), true));
+                }
+                
+                subquery.where(cb.and(subPredicates.toArray(new jakarta.persistence.criteria.Predicate[0])));
                 predicates.add(cb.in(root.get("id")).value(subquery));
             }
 
